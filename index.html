@@ -1,144 +1,480 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>API RUNNER – Love Quest</title>
-  <style>
-    body { margin:0; overflow:hidden; background:#000; font-family:Arial,sans-serif; }
-    #menu { width:100vw; height:100vh; background: linear-gradient(135deg, #ff0077, #4500ff); display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; text-align:center; }
-    #menu h1 { font-size:50px; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
-    #menu button { background:white; border:none; padding:18px 35px; border-radius:20px; font-size:22px; margin-top:25px; cursor:pointer; color:#ff0077; font-weight:bold; }
-    #gameArea { position:relative; width:100vw; height:100vh; display:none; background:#111; overflow:hidden; }
-    #player { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); width:64px; height:64px; background: transparent; }
-    .obj { position:absolute; font-size:40px; animation: fall linear forwards; }
-    @keyframes fall { from { top:-50px } to { top:110vh } }
-    #score, #lives, #level { position:absolute; top:15px; color:white; font-size:22px; }
-    #score { left:10px; } #lives { right:10px; } #level { left:50%; transform:translateX(-50%); }
-    #finalScreen { position:absolute; width:100vw; height:100vh; top:0; left:0; background: rgba(255,0,100,0.6); backdrop-filter: blur(4px); color:white; display:none; text-align:center; padding-top:40vh; font-size:28px; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>API RUNNER – LOVE QUEST</title>
+
+<style>
+/* ===========================
+        ESTILOS GENERALES
+   =========================== */
+body {
+    margin: 0;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+}
+
+/* ===========================
+        PANTALLA DE INICIO
+   =========================== */
+#menu {
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg,#ff0077,#5700ff);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    text-align:center;
+}
+
+#menu h1 {
+    font-size:60px;
+    animation:pulse 2.5s infinite;
+}
+
+@keyframes pulse {
+    0% {transform:scale(1);}
+    50% {transform:scale(1.1);}
+    100% {transform:scale(1);}
+}
+
+.menu-button {
+    background:white;
+    border:none;
+    padding:20px 35px;
+    margin:15px;
+    border-radius:20px;
+    font-size:26px;
+    color:#ff0077;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.menu-button:hover {
+    transform:scale(1.08);
+    background:#ffe6f3;
+}
+
+/* ===========================
+           HISTORIA
+   =========================== */
+#story, #instructions, #credits {
+    position:absolute;
+    top:0; left:0;
+    width:100vw; height:100vh;
+    background:rgba(0,0,0,0.85);
+    color:white;
+    padding:40px;
+    box-sizing:border-box;
+    display:none;
+    overflow-y:auto;
+}
+
+.story-text {
+    font-size:24px;
+    line-height:1.6;
+    white-space:pre-line;
+}
+
+.close-btn {
+    margin-top:25px;
+    padding:15px 25px;
+    background:#ff57a1;
+    border:none;
+    color:white;
+    font-size:22px;
+    border-radius:15px;
+    cursor:pointer;
+}
+
+.close-btn:hover {
+    background:#ff2d8c;
+}
+
+/* ===========================
+       ÁREA DEL JUEGO
+   =========================== */
+#gameArea {
+    position:relative;
+    width:100vw;
+    height:100vh;
+    background:#111;
+    display:none;
+    overflow:hidden;
+}
+
+#player {
+    position:absolute;
+    bottom:40px;
+    left:50%;
+    transform:translateX(-50%);
+    width:70px;
+    height:auto;
+}
+
+/* Objetos que caen */
+.obj {
+    position:absolute;
+    font-size:40px;
+    animation: fall linear forwards;
+}
+
+@keyframes fall {
+    from { top:-50px; }
+    to { top:110vh; }
+}
+
+/* HUD */
+#score, #lives, #level {
+    position:absolute;
+    top:15px;
+    color:white;
+    font-size:26px;
+}
+
+#score { left:20px; }
+#lives { right:20px; }
+#level { left:50%; transform:translateX(-50%);}
+#dialog {
+    position:absolute;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    color:white;
+    font-size:28px;
+    animation:fadein 1s;
+}
+
+@keyframes fadein { from{opacity:0;} to{opacity:1;} }
+
+/* ===========================
+        PANTALLA FINAL
+   =========================== */
+#finalScreen {
+    display:none;
+    position:absolute;
+    top:0; left:0;
+    width:100vw; height:100vh;
+    background:rgba(255,0,120,0.6);
+    backdrop-filter:blur(5px);
+    color:white;
+    text-align:center;
+    padding-top:40vh;
+    font-size:34px;
+}
+
+.final-btn {
+    margin-top:25px;
+    padding:18px 30px;
+    background:white;
+    color:#ff057d;
+    border:none;
+    font-size:26px;
+    border-radius:18px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.final-btn:hover {
+    transform:scale(1.05);
+}
+
+/* ===========================
+        PARTÍCULAS
+   =========================== */
+.particle {
+    position:absolute;
+    width:8px;
+    height:8px;
+    background:pink;
+    border-radius:50%;
+    opacity:0.8;
+    animation: explode 0.7s forwards;
+}
+
+@keyframes explode {
+    from { transform:scale(1); opacity:1;}
+    to   { transform:scale(3); opacity:0;}
+}
+</style>
 </head>
+
 <body>
 
-  <!-- MENU -->
-  <div id="menu">
-    <h1>API RUNNER – Love Quest</h1>
-    <p>Manu lo hizo para vos 💖</p>
-    <button onclick="startGame()">Jugar</button>
-  </div>
+<!-- ===========================
+          MENÚ
+=========================== -->
+<div id="menu">
+    <h1>API RUNNER<br>LOVE QUEST</h1>
+    <button class="menu-button" onclick="showStory()">Historia</button>
+    <button class="menu-button" onclick="showInstructions()">Instrucciones</button>
+    <button class="menu-button" onclick="startGame()">Jugar</button>
+    <button class="menu-button" onclick="showCredits()">Créditos</button>
+</div>
 
-  <!-- ÁREA DE JUEGO -->
-  <div id="gameArea">
-    <img id="player" src="https://raw.githubusercontent.com/manuricardo123456789-svg/apiii/main/ChatGPT%20Image%201%20dic%202025, 12_12_07 p.m..png" alt="Api chibi">
+<!-- ==============================
+            HISTORIA
+=============================== -->
+<div id="story">
+    <div class="story-text" id="storyText">
+    </div>
+    <button class="close-btn" onclick="closeStory()">Volver</button>
+</div>
+
+<!-- ==============================
+          INSTRUCCIONES
+=============================== -->
+<div id="instructions">
+    <h2>📌 Instrucciones</h2>
+    <p>
+    ⭐ Objetivo: Juntar 10 estrellas rosas para completar el “Corazón de Amor”.  
+    ⚡ Evitar estrellas amarillas (te sacan vidas).  
+    🩷 Vidas: 3  
+    🎮 Movimiento: Dedo o mouse moviendo a Api de lado a lado.  
+    </p>
+    <button class="close-btn" onclick="closeInstructions()">Volver</button>
+</div>
+
+<!-- ==============================
+            CRÉDITOS
+=============================== -->
+<div id="credits">
+    <h2>💗 Créditos</h2>
+    <p>
+    Juego creado completamente por Manu  
+    Para Api… Mo… Gordita… Amor  
+    Porque se merece todo.  
+    </p>
+    <button class="close-btn" onclick="closeCredits()">Volver</button>
+</div>
+
+<!-- ==============================
+          ÁREA DEL JUEGO
+=============================== -->
+<div id="gameArea">
+    <img id="player" src="URL_DE_TU_SPRITE.png">
     <div id="score">Puntos: 0</div>
     <div id="lives">Vidas: 3</div>
     <div id="level">Nivel 1</div>
+    <div id="dialog"></div>
     <div id="finalScreen"></div>
-  </div>
+</div>
 
-  <script>
-    let score = 0, lives = 3, level = 1, speed = 3000, gameRunning = false;
+<script>
+/* ===========================
+    VARIABLES DEL JUEGO
+=========================== */
+let score = 0, lives = 3, level = 1, speed = 2500;
+let gameRunning = false;
+let dialogTimer;
 
-    function startGame(){
-      document.getElementById('menu').style.display = 'none';
-      document.getElementById('gameArea').style.display = 'block';
-      gameRunning = true;
-      spawnLoop();
-    }
+/* ===========================
+     HISTORIA COMPLETA
+=========================== */
+const storyText = `
+Hola Api… o Mo… o mi Gordita hermosa…  
+Manu te necesita en una misión especial.
 
-    document.addEventListener('mousemove', e => {
-      if (!gameRunning) return;
-      const pl = document.getElementById('player');
-      pl.style.left = (e.clientX - pl.clientWidth/2) + 'px';
-    });
+Cuando él pensó en vos,  
+las Estrellas de Nuestro Amor se escaparon al cielo…
 
-    document.addEventListener('touchmove', e => {
-      if (!gameRunning) return;
-      const pl = document.getElementById('player');
-      pl.style.left = (e.touches[0].clientX - pl.clientWidth/2) + 'px';
-    });
+Cada estrella rosa ⭐ representa un recuerdo lindo nuestro.  
+Cada estrella amarilla ⚡ te distrae del camino.
 
-    function spawnObject(){
-      const obj = document.createElement('div');
-      obj.classList.add('obj');
-      const isHeart = Math.random()<0.65;
-      obj.innerHTML = isHeart ? '❤️' : '⚡';
-      obj.style.color = isHeart ? 'pink' : 'yellow';
-      obj.style.left = Math.random()*(window.innerWidth-40)+'px';
-      obj.style.animationDuration = (speed/1000)+'s';
-      document.getElementById('gameArea').appendChild(obj);
+Amor… ¿lo ayudás a recuperar lo que siente por vos?  
+`;
 
-      const fallInterval = setInterval(()=>{
+/* ===========================
+        FUNCIONES MENÚ
+=========================== */
+function showStory(){
+    document.getElementById("storyText").innerText = storyText;
+    document.getElementById("story").style.display = "block";
+}
+function closeStory(){ document.getElementById("story").style.display = "none"; }
+
+function showInstructions(){
+    document.getElementById("instructions").style.display = "block";
+}
+function closeInstructions(){ document.getElementById("instructions").style.display = "none"; }
+
+function showCredits(){
+    document.getElementById("credits").style.display = "block";
+}
+function closeCredits(){ document.getElementById("credits").style.display = "none"; }
+
+/* ===========================
+       INICIO DEL JUEGO
+=========================== */
+function startGame(){
+    document.getElementById("menu").style.display = "none";
+    document.getElementById("gameArea").style.display = "block";
+    gameRunning = true;
+    spawnLoop();
+    randomDialog("Vamos Amor 💗");
+}
+
+/* ===========================
+       MOVIMIENTO DEL PLAYER
+=========================== */
+document.addEventListener("mousemove", e => movePlayer(e.clientX));
+document.addEventListener("touchmove", e => movePlayer(e.touches[0].clientX));
+
+function movePlayer(x){
+    if(!gameRunning) return;
+    const p = document.getElementById("player");
+    p.style.left = (x - p.clientWidth/2) + "px";
+}
+
+/* ===========================
+         OBJETOS
+=========================== */
+function spawnLoop() {
+    setInterval(()=>{
+        if(gameRunning) spawnObject();
+    }, speed);
+}
+
+function spawnObject() {
+    const obj = document.createElement("div");
+    obj.classList.add("obj");
+
+    const isHeart = Math.random() < 0.65;
+    obj.innerHTML = isHeart ? "❤️" : "⚡";
+    obj.style.left = Math.random()*(window.innerWidth-40)+"px";
+    obj.style.animationDuration = speed/1000+"s";
+
+    gameArea.appendChild(obj);
+
+    let interval = setInterval(()=>{
         const rect = obj.getBoundingClientRect();
-        const pl = document.getElementById('player').getBoundingClientRect();
+        const p = document.getElementById("player").getBoundingClientRect();
 
-        if(rect.bottom >= pl.top && rect.left <= pl.right && rect.right >= pl.left){
-          if(isHeart){
-            score++;
-          } else {
-            lives--;
-          }
-          updateUI();
-          obj.remove();
-          clearInterval(fallInterval);
+        if(rect.bottom >= p.top && rect.left <= p.right && rect.right >= p.left){
+            if(isHeart){
+                score++;
+                particleBurst(p.left+p.width/2, p.top);
+                randomDialog(getRandomLoveMessage());
+            } else {
+                lives--;
+                randomDialog("Cuidado Gordita 😭");
+            }
+            updateUI();
+            obj.remove();
+            clearInterval(interval);
         }
 
         if(rect.top > window.innerHeight){
-          obj.remove();
-          clearInterval(fallInterval);
+            obj.remove();
+            clearInterval(interval);
         }
 
-        if(score >= 15){
-          levelUp();
+        if(score >= 10){
+            winGame();
         }
         if(lives <= 0){
-          endGame();
+            loseGame();
         }
-      },50);
-    }
+    },40);
+}
 
-    function spawnLoop(){
-      setInterval(()=>{
-        if(gameRunning) spawnObject();
-      }, speed);
+/* ===========================
+       PARTICULAS
+=========================== */
+function particleBurst(x,y){
+    for(let i=0; i<12; i++){
+        const p = document.createElement("div");
+        p.classList.add("particle");
+        p.style.left = x+"px";
+        p.style.top = y+"px";
+        p.style.transform = `translate(${(Math.random()*100)-50}px, ${(Math.random()*100)-50}px)`;
+        gameArea.appendChild(p);
+        setTimeout(()=>p.remove(),700);
     }
+}
 
-    function updateUI(){
-      document.getElementById('score').innerText = 'Puntos: '+score;
-      document.getElementById('lives').innerText = 'Vidas: '+lives;
-      document.getElementById('level').innerText = 'Nivel '+level;
-    }
+/* ===========================
+      DIÁLOGOS DINÁMICOS
+=========================== */
+function randomDialog(text){
+    const d = document.getElementById("dialog");
+    d.innerText = text;
+    clearTimeout(dialogTimer);
+    dialogTimer = setTimeout(()=>{ d.innerText=""; },2000);
+}
 
-    function levelUp(){
-      level++;
-      speed = Math.max(600, speed - 400);
-      score = 0;
-      updateUI();
-    }
+function getRandomLoveMessage(){
+    const msgs = [
+        "Vamos Amor 💗",
+        "Mo, sos increíble ✨",
+        "Gordita hermosa 💕",
+        "Apiii, te amo mucho ❤️",
+        "Lo estás rompiendo Amorcito 🌟",
+        "Mo, seguí así 😍",
+    ];
+    return msgs[Math.floor(Math.random()*msgs.length)];
+}
 
-    function endGame(){
-      gameRunning = false;
-      document.getElementById('finalScreen').style.display = 'block';
-      if(lives <= 0){
-        document.getElementById('finalScreen').innerHTML = '💔 No importa Amor, Manu te ama igual ❤️<br><button onclick="restart()">Reintentar</button>';
-      } else {
-        document.getElementById('finalScreen').innerHTML = '💖 Api, lo lograste!<br>Mi corazón es todo tuyo ❤️<br><button onclick="restart()">Reintentar</button>';
-      }
-    }
+/* ===========================
+        HUD
+=========================== */
+function updateUI(){
+    document.getElementById("score").innerText = "Puntos: "+score;
+    document.getElementById("lives").innerText = "Vidas: "+lives;
+    document.getElementById("level").innerText = "Nivel "+level;
+}
 
-    function restart(){
-      score = 0; lives = 3; level = 1; speed = 3000;
-      document.getElementById('finalScreen').style.display = 'none';
-      document.getElementById('gameArea').innerHTML = '';
-      document.getElementById('gameArea').appendChild(document.getElementById('player'));
-      document.getElementById('gameArea').appendChild(document.getElementById('score'));
-      document.getElementById('gameArea').appendChild(document.getElementById('lives'));
-      document.getElementById('gameArea').appendChild(document.getElementById('level'));
-      gameRunning = true;
-      spawnLoop();
-    }
+/* ===========================
+        FINAL DEL JUEGO
+=========================== */
+function winGame(){
+    gameRunning = false;
+    const fs = document.getElementById("finalScreen");
+    fs.style.display = "block";
+    fs.innerHTML = `
+    💖 Api, recuperaste todas las Estrellas de Nuestro Amor  
+    Manu te ama con todo su corazón ❤️  
+    <br><br>
+    <button class="final-btn" onclick="restart()">Reintentar</button>
+    <button class="final-btn" onclick="location.reload()">Menú</button>
+    `;
+}
 
-  </script>
+function loseGame(){
+    gameRunning = false;
+    const fs = document.getElementById("finalScreen");
+    fs.style.display = "block";
+    fs.innerHTML = `
+    💔 No pasa nada Gordita…  
+    Manu igual te ama más que ayer 💗  
+    <br><br>
+    <button class="final-btn" onclick="restart()">Reintentar</button>
+    <button class="final-btn" onclick="location.reload()">Menú</button>
+    `;
+}
+
+/* ===========================
+        REINICIAR
+=========================== */
+function restart(){
+    score = 0; lives = 3; level = 1;
+    document.getElementById("finalScreen").style.display = "none";
+    document.getElementById("gameArea").innerHTML = `
+        <img id="player" src="URL_DE_TU_SPRITE.png">
+        <div id="score">Puntos: 0</div>
+        <div id="lives">Vidas: 3</div>
+        <div id="level">Nivel 1</div>
+        <div id="dialog"></div>
+        <div id="finalScreen"></div>`;
+    gameRunning = true;
+    spawnLoop();
+}
+</script>
+
 </body>
 </html>
