@@ -3,155 +3,198 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Para Api ❤️</title>
+<title>Api Runner ❤️</title>
 <style>
     body {
-        background: #111;
-        color: white;
-        font-family: Arial, sans-serif;
-        text-align: center;
         margin: 0;
+        background: #0d0d0d;
+        font-family: Arial, sans-serif;
         overflow: hidden;
     }
 
-    h1 {
-        margin-top: 15px;
-        font-size: 26px;
+    #menu {
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #ff6fa5, #ff3d75);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-align: center;
+    }
+
+    #menu h1 {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+
+    #menu button {
+        background: white;
+        color: #ff2572;
+        padding: 15px 30px;
+        font-size: 22px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        margin-top: 20px;
+        font-weight: bold;
     }
 
     #gameArea {
         position: relative;
         width: 100vw;
-        height: 80vh;
-        background: #222;
-        border: 2px solid white;
-        margin: auto;
+        height: 100vh;
+        background: #1a1a1a;
         overflow: hidden;
+        display: none;
     }
 
     #player {
-        width: 50px;
-        height: 50px;
+        font-size: 50px;
         position: absolute;
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 40px;
+        transition: left 0.12s linear;
     }
 
     .star {
         position: absolute;
-        font-size: 35px;
+        font-size: 40px;
         color: gold;
+        animation: fall 2.8s linear forwards;
     }
 
-    #msg {
-        font-size: 24px;
-        margin-top: 10px;
+    @keyframes fall {
+        from { top: -40px; }
+        to { top: 100vh; }
+    }
+
+    #score {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        font-size: 22px;
+        color: white;
+    }
+
+    #finalMsg {
         display: none;
-    }
-
-    #controls {
-        margin-top: 10px;
-    }
-
-    button {
-        padding: 10px 20px;
-        margin: 5px;
-        font-size: 18px;
-        background: pink;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-    }
-
-    button:active {
-        background: hotpink;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(255, 20, 147, 0.6);
+        backdrop-filter: blur(3px);
+        color: white;
+        font-size: 28px;
+        text-align: center;
+        padding-top: 40vh;
     }
 </style>
 </head>
 <body>
 
-<h1>Para Api ❤️ – Mini Arcade</h1>
-<div id="gameArea">
-    <div id="player">❤️</div>
+<div id="menu">
+    <h1>API RUNNER ❤️</h1>
+    <p>Agarrá los corazones y esquivá las estrellas<br>¡Demostrale tu amor!</p>
+    <button onclick="startGame()">Comenzar</button>
 </div>
 
-<p id="msg">🎉 ¡Ganaste Api! Te amo mucho ❤️</p>
-
-<div id="controls">
-    <button onclick="moveLeft()">⬅</button>
-    <button onclick="moveRight()">➡</button>
+<div id="gameArea">
+    <div id="player">💖</div>
+    <div id="score">Puntos: 0</div>
+    <div id="finalMsg">✨ ¡Api, ganaste! Manu te ama con toda su alma ❤️</div>
 </div>
 
 <script>
     const gameArea = document.getElementById("gameArea");
     const player = document.getElementById("player");
-    const msg = document.getElementById("msg");
+    const finalMsg = document.getElementById("finalMsg");
+    const scoreTag = document.getElementById("score");
 
-    let starsCaught = 0;
-    let totalStars = 5;
+    let score = 0;
+    let gameRunning = false;
 
-    function createStar() {
-        let star = document.createElement("div");
-        star.classList.add("star");
-        star.innerHTML = "⭐";
-
-        star.style.left = Math.random() * (gameArea.clientWidth - 40) + "px";
-        star.style.top = "0px";
-
-        gameArea.appendChild(star);
-
-        let fall = setInterval(() => {
-            let topPos = parseInt(star.style.top);
-            star.style.top = topPos + 5 + "px";
-
-            // detect collision
-            let playerRect = player.getBoundingClientRect();
-            let starRect = star.getBoundingClientRect();
-
-            if (
-                starRect.bottom >= playerRect.top &&
-                starRect.left <= playerRect.right &&
-                starRect.right >= playerRect.left
-            ) {
-                star.remove();
-                starsCaught++;
-                clearInterval(fall);
-
-                if (starsCaught >= totalStars) {
-                    msg.style.display = "block";
-                }
-            }
-
-            // remove if falls out
-            if (topPos > gameArea.clientHeight) {
-                star.remove();
-                clearInterval(fall);
-            }
-        }, 40);
+    function startGame() {
+        document.getElementById("menu").style.display = "none";
+        gameArea.style.display = "block";
+        gameRunning = true;
+        spawnObjects();
     }
 
-    // spawn stars
-    setInterval(createStar, 2000);
-
-    // movement
-    function moveLeft() {
-        let pos = player.offsetLeft;
-        if (pos > 0) player.style.left = pos - 40 + "px";
+    // MOVIMIENTO
+    function movePlayer(x) {
+        player.style.left = x + "px";
     }
 
-    function moveRight() {
-        let pos = player.offsetLeft;
-        if (pos < gameArea.clientWidth - 50)
-            player.style.left = pos + 40 + "px";
-    }
-
-    // keyboard controls
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowLeft") moveLeft();
-        if (e.key === "ArrowRight") moveRight();
+    document.addEventListener("mousemove", (e) => {
+        if (gameRunning) movePlayer(e.clientX - 25);
     });
+
+    document.addEventListener("touchmove", (e) => {
+        if (gameRunning) movePlayer(e.touches[0].clientX - 25);
+    });
+
+    // CREAR OBJETOS
+    function spawnObjects() {
+        setInterval(() => {
+            if (!gameRunning) return;
+
+            let obj = document.createElement("div");
+            obj.classList.add("star");
+
+            // random tipo de objeto
+            let type = Math.random() < 0.7 ? "heart" : "star";
+
+            obj.innerHTML = type === "heart" ? "❤️" : "⭐";
+            obj.style.color = type === "heart" ? "pink" : "gold";
+            obj.style.left = Math.random() * (window.innerWidth - 40) + "px";
+
+            gameArea.appendChild(obj);
+
+            let fall = setInterval(() => {
+                let objRect = obj.getBoundingClientRect();
+                let playerRect = player.getBoundingClientRect();
+
+                // Colisión
+                if (
+                    objRect.bottom >= playerRect.top &&
+                    objRect.left <= playerRect.right &&
+                    objRect.right >= playerRect.left
+                ) {
+                    if (obj.innerHTML === "❤️") {
+                        score++;
+                        scoreTag.innerText = "Puntos: " + score;
+                        obj.remove();
+                    } else {
+                        endGame();
+                    }
+                    clearInterval(fall);
+                }
+
+                // Si llega abajo
+                if (objRect.top > window.innerHeight) {
+                    obj.remove();
+                    clearInterval(fall);
+                }
+
+                if (score >= 10) {
+                    endGame(true);
+                }
+            }, 50);
+        }, 800);
+    }
+
+    function endGame(win = false) {
+        gameRunning = false;
+        finalMsg.innerHTML = win
+            ? "🎉 ¡Api, ganaste! Manu te ama más que a nada ❤️"
+            : "💔 Se te escapó una estrella... pero Manu te ama igual";
+        finalMsg.style.display = "block";
+    }
 </script>
 
 </body>
