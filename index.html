@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Para Api ❤️</title>
+<style>
+    body {
+        background: #111;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    h1 {
+        margin-top: 15px;
+        font-size: 26px;
+    }
+
+    #gameArea {
+        position: relative;
+        width: 100vw;
+        height: 80vh;
+        background: #222;
+        border: 2px solid white;
+        margin: auto;
+        overflow: hidden;
+    }
+
+    #player {
+        width: 50px;
+        height: 50px;
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 40px;
+    }
+
+    .star {
+        position: absolute;
+        font-size: 35px;
+        color: gold;
+    }
+
+    #msg {
+        font-size: 24px;
+        margin-top: 10px;
+        display: none;
+    }
+
+    #controls {
+        margin-top: 10px;
+    }
+
+    button {
+        padding: 10px 20px;
+        margin: 5px;
+        font-size: 18px;
+        background: pink;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    button:active {
+        background: hotpink;
+    }
+</style>
+</head>
+<body>
+
+<h1>Para Api ❤️ – Mini Arcade</h1>
+<div id="gameArea">
+    <div id="player">❤️</div>
+</div>
+
+<p id="msg">🎉 ¡Ganaste Api! Te amo mucho ❤️</p>
+
+<div id="controls">
+    <button onclick="moveLeft()">⬅</button>
+    <button onclick="moveRight()">➡</button>
+</div>
+
+<script>
+    const gameArea = document.getElementById("gameArea");
+    const player = document.getElementById("player");
+    const msg = document.getElementById("msg");
+
+    let starsCaught = 0;
+    let totalStars = 5;
+
+    function createStar() {
+        let star = document.createElement("div");
+        star.classList.add("star");
+        star.innerHTML = "⭐";
+
+        star.style.left = Math.random() * (gameArea.clientWidth - 40) + "px";
+        star.style.top = "0px";
+
+        gameArea.appendChild(star);
+
+        let fall = setInterval(() => {
+            let topPos = parseInt(star.style.top);
+            star.style.top = topPos + 5 + "px";
+
+            // detect collision
+            let playerRect = player.getBoundingClientRect();
+            let starRect = star.getBoundingClientRect();
+
+            if (
+                starRect.bottom >= playerRect.top &&
+                starRect.left <= playerRect.right &&
+                starRect.right >= playerRect.left
+            ) {
+                star.remove();
+                starsCaught++;
+                clearInterval(fall);
+
+                if (starsCaught >= totalStars) {
+                    msg.style.display = "block";
+                }
+            }
+
+            // remove if falls out
+            if (topPos > gameArea.clientHeight) {
+                star.remove();
+                clearInterval(fall);
+            }
+        }, 40);
+    }
+
+    // spawn stars
+    setInterval(createStar, 2000);
+
+    // movement
+    function moveLeft() {
+        let pos = player.offsetLeft;
+        if (pos > 0) player.style.left = pos - 40 + "px";
+    }
+
+    function moveRight() {
+        let pos = player.offsetLeft;
+        if (pos < gameArea.clientWidth - 50)
+            player.style.left = pos + 40 + "px";
+    }
+
+    // keyboard controls
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") moveLeft();
+        if (e.key === "ArrowRight") moveRight();
+    });
+</script>
+
+</body>
+</html>
