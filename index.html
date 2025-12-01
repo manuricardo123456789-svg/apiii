@@ -1,201 +1,144 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Api Runner ❤️</title>
-<style>
-    body {
-        margin: 0;
-        background: #0d0d0d;
-        font-family: Arial, sans-serif;
-        overflow: hidden;
-    }
-
-    #menu {
-        width: 100vw;
-        height: 100vh;
-        background: linear-gradient(135deg, #ff6fa5, #ff3d75);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        text-align: center;
-    }
-
-    #menu h1 {
-        font-size: 40px;
-        margin-bottom: 10px;
-    }
-
-    #menu button {
-        background: white;
-        color: #ff2572;
-        padding: 15px 30px;
-        font-size: 22px;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        margin-top: 20px;
-        font-weight: bold;
-    }
-
-    #gameArea {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        background: #1a1a1a;
-        overflow: hidden;
-        display: none;
-    }
-
-    #player {
-        font-size: 50px;
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        transition: left 0.12s linear;
-    }
-
-    .star {
-        position: absolute;
-        font-size: 40px;
-        color: gold;
-        animation: fall 2.8s linear forwards;
-    }
-
-    @keyframes fall {
-        from { top: -40px; }
-        to { top: 100vh; }
-    }
-
-    #score {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        font-size: 22px;
-        color: white;
-    }
-
-    #finalMsg {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(255, 20, 147, 0.6);
-        backdrop-filter: blur(3px);
-        color: white;
-        font-size: 28px;
-        text-align: center;
-        padding-top: 40vh;
-    }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API RUNNER – Love Quest</title>
+  <style>
+    body { margin:0; overflow:hidden; background:#000; font-family:Arial,sans-serif; }
+    #menu { width:100vw; height:100vh; background: linear-gradient(135deg, #ff0077, #4500ff); display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; text-align:center; }
+    #menu h1 { font-size:50px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+    #menu button { background:white; border:none; padding:18px 35px; border-radius:20px; font-size:22px; margin-top:25px; cursor:pointer; color:#ff0077; font-weight:bold; }
+    #gameArea { position:relative; width:100vw; height:100vh; display:none; background:#111; overflow:hidden; }
+    #player { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); width:64px; height:64px; background: transparent; }
+    .obj { position:absolute; font-size:40px; animation: fall linear forwards; }
+    @keyframes fall { from { top:-50px } to { top:110vh } }
+    #score, #lives, #level { position:absolute; top:15px; color:white; font-size:22px; }
+    #score { left:10px; } #lives { right:10px; } #level { left:50%; transform:translateX(-50%); }
+    #finalScreen { position:absolute; width:100vw; height:100vh; top:0; left:0; background: rgba(255,0,100,0.6); backdrop-filter: blur(4px); color:white; display:none; text-align:center; padding-top:40vh; font-size:28px; }
+  </style>
 </head>
 <body>
 
-<div id="menu">
-    <h1>API RUNNER ❤️</h1>
-    <p>Agarrá los corazones y esquivá las estrellas<br>¡Demostrale tu amor!</p>
-    <button onclick="startGame()">Comenzar</button>
-</div>
+  <!-- MENU -->
+  <div id="menu">
+    <h1>API RUNNER – Love Quest</h1>
+    <p>Manu lo hizo para vos 💖</p>
+    <button onclick="startGame()">Jugar</button>
+  </div>
 
-<div id="gameArea">
-    <div id="player">💖</div>
+  <!-- ÁREA DE JUEGO -->
+  <div id="gameArea">
+    <img id="player" src="https://raw.githubusercontent.com/manuricardo123456789-svg/apiii/main/ChatGPT%20Image%201%20dic%202025, 12_12_07 p.m..png" alt="Api chibi">
     <div id="score">Puntos: 0</div>
-    <div id="finalMsg">✨ ¡Api, ganaste! Manu te ama con toda su alma ❤️</div>
-</div>
+    <div id="lives">Vidas: 3</div>
+    <div id="level">Nivel 1</div>
+    <div id="finalScreen"></div>
+  </div>
 
-<script>
-    const gameArea = document.getElementById("gameArea");
-    const player = document.getElementById("player");
-    const finalMsg = document.getElementById("finalMsg");
-    const scoreTag = document.getElementById("score");
+  <script>
+    let score = 0, lives = 3, level = 1, speed = 3000, gameRunning = false;
 
-    let score = 0;
-    let gameRunning = false;
-
-    function startGame() {
-        document.getElementById("menu").style.display = "none";
-        gameArea.style.display = "block";
-        gameRunning = true;
-        spawnObjects();
+    function startGame(){
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('gameArea').style.display = 'block';
+      gameRunning = true;
+      spawnLoop();
     }
 
-    // MOVIMIENTO
-    function movePlayer(x) {
-        player.style.left = x + "px";
-    }
-
-    document.addEventListener("mousemove", (e) => {
-        if (gameRunning) movePlayer(e.clientX - 25);
+    document.addEventListener('mousemove', e => {
+      if (!gameRunning) return;
+      const pl = document.getElementById('player');
+      pl.style.left = (e.clientX - pl.clientWidth/2) + 'px';
     });
 
-    document.addEventListener("touchmove", (e) => {
-        if (gameRunning) movePlayer(e.touches[0].clientX - 25);
+    document.addEventListener('touchmove', e => {
+      if (!gameRunning) return;
+      const pl = document.getElementById('player');
+      pl.style.left = (e.touches[0].clientX - pl.clientWidth/2) + 'px';
     });
 
-    // CREAR OBJETOS
-    function spawnObjects() {
-        setInterval(() => {
-            if (!gameRunning) return;
+    function spawnObject(){
+      const obj = document.createElement('div');
+      obj.classList.add('obj');
+      const isHeart = Math.random()<0.65;
+      obj.innerHTML = isHeart ? '❤️' : '⚡';
+      obj.style.color = isHeart ? 'pink' : 'yellow';
+      obj.style.left = Math.random()*(window.innerWidth-40)+'px';
+      obj.style.animationDuration = (speed/1000)+'s';
+      document.getElementById('gameArea').appendChild(obj);
 
-            let obj = document.createElement("div");
-            obj.classList.add("star");
+      const fallInterval = setInterval(()=>{
+        const rect = obj.getBoundingClientRect();
+        const pl = document.getElementById('player').getBoundingClientRect();
 
-            // random tipo de objeto
-            let type = Math.random() < 0.7 ? "heart" : "star";
+        if(rect.bottom >= pl.top && rect.left <= pl.right && rect.right >= pl.left){
+          if(isHeart){
+            score++;
+          } else {
+            lives--;
+          }
+          updateUI();
+          obj.remove();
+          clearInterval(fallInterval);
+        }
 
-            obj.innerHTML = type === "heart" ? "❤️" : "⭐";
-            obj.style.color = type === "heart" ? "pink" : "gold";
-            obj.style.left = Math.random() * (window.innerWidth - 40) + "px";
+        if(rect.top > window.innerHeight){
+          obj.remove();
+          clearInterval(fallInterval);
+        }
 
-            gameArea.appendChild(obj);
-
-            let fall = setInterval(() => {
-                let objRect = obj.getBoundingClientRect();
-                let playerRect = player.getBoundingClientRect();
-
-                // Colisión
-                if (
-                    objRect.bottom >= playerRect.top &&
-                    objRect.left <= playerRect.right &&
-                    objRect.right >= playerRect.left
-                ) {
-                    if (obj.innerHTML === "❤️") {
-                        score++;
-                        scoreTag.innerText = "Puntos: " + score;
-                        obj.remove();
-                    } else {
-                        endGame();
-                    }
-                    clearInterval(fall);
-                }
-
-                // Si llega abajo
-                if (objRect.top > window.innerHeight) {
-                    obj.remove();
-                    clearInterval(fall);
-                }
-
-                if (score >= 10) {
-                    endGame(true);
-                }
-            }, 50);
-        }, 800);
+        if(score >= 15){
+          levelUp();
+        }
+        if(lives <= 0){
+          endGame();
+        }
+      },50);
     }
 
-    function endGame(win = false) {
-        gameRunning = false;
-        finalMsg.innerHTML = win
-            ? "🎉 ¡Api, ganaste! Manu te ama más que a nada ❤️"
-            : "💔 Se te escapó una estrella... pero Manu te ama igual";
-        finalMsg.style.display = "block";
+    function spawnLoop(){
+      setInterval(()=>{
+        if(gameRunning) spawnObject();
+      }, speed);
     }
-</script>
 
+    function updateUI(){
+      document.getElementById('score').innerText = 'Puntos: '+score;
+      document.getElementById('lives').innerText = 'Vidas: '+lives;
+      document.getElementById('level').innerText = 'Nivel '+level;
+    }
+
+    function levelUp(){
+      level++;
+      speed = Math.max(600, speed - 400);
+      score = 0;
+      updateUI();
+    }
+
+    function endGame(){
+      gameRunning = false;
+      document.getElementById('finalScreen').style.display = 'block';
+      if(lives <= 0){
+        document.getElementById('finalScreen').innerHTML = '💔 No importa Amor, Manu te ama igual ❤️<br><button onclick="restart()">Reintentar</button>';
+      } else {
+        document.getElementById('finalScreen').innerHTML = '💖 Api, lo lograste!<br>Mi corazón es todo tuyo ❤️<br><button onclick="restart()">Reintentar</button>';
+      }
+    }
+
+    function restart(){
+      score = 0; lives = 3; level = 1; speed = 3000;
+      document.getElementById('finalScreen').style.display = 'none';
+      document.getElementById('gameArea').innerHTML = '';
+      document.getElementById('gameArea').appendChild(document.getElementById('player'));
+      document.getElementById('gameArea').appendChild(document.getElementById('score'));
+      document.getElementById('gameArea').appendChild(document.getElementById('lives'));
+      document.getElementById('gameArea').appendChild(document.getElementById('level'));
+      gameRunning = true;
+      spawnLoop();
+    }
+
+  </script>
 </body>
 </html>
